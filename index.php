@@ -1,41 +1,54 @@
-<?php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twilio SMS Sender</title>
+</head>
+<body>
+    <h1>Send SMS</h1>
 
-// Twilio credentials
-$accountSid = 'AC9af1605430348b672b6c160e3b8cea3b';
-$authToken  = '27a7b1fcd4dcc5b078e35c25fee70a6a';
+    <label for="phoneNumber">Phone Number:</label>
+    <input type="tel" id="phoneNumber" placeholder="Enter phone number">
 
-// Recipient phone number
-$toNumber = '+8801926658705';
+    <label for="message">Message:</label>
+    <textarea id="message" placeholder="Enter your message"></textarea>
 
-// Twilio phone number (must be purchased on Twilio)
-$fromNumber = '+88001617658429';
+    <button onclick="sendMessage()">Send</button>
 
-// Message to be sent
-$message = 'Hello, this is a test message!';
+    <script>
+        function sendMessage() {
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const message = document.getElementById('message').value;
 
-// Twilio API URL
-$url = 'https://api.twilio.com/2010-04-01/Accounts/' . $accountSid . '/Messages.json';
+            // Replace these values with your Twilio credentials and phone number
+            const accountSid = 'AC9af1605430348b672b6c160e3b8cea3b';
+            const authToken = '27a7b1fcd4dcc5b078e35c25fee70a6a';
+            const fromPhoneNumber = '+88001617658429';
 
-// Twilio API request parameters
-$data = array(
-    'To'   => $toNumber,
-    'From' => $fromNumber,
-    'Body' => $message,
-);
-
-// Set up HTTP headers for authentication
-$options = array(
-    'http' => array(
-        'header'  => "Authorization: Basic " . base64_encode($accountSid . ":" . $authToken),
-        'method'  => 'POST',
-        'content' => http_build_query($data),
-    ),
-);
-
-// Make the HTTP request
-$context  = stream_context_create($options);
-$response = file_get_contents($url, false, $context);
-
-// Output the response
-echo $response;
-?>
+            // Using Twilio's API to send SMS
+            fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': 'Basic ' + btoa(`${accountSid}:${authToken}`)
+                },
+                body: new URLSearchParams({
+                    'To': phoneNumber,
+                    'From': fromPhoneNumber,
+                    'Body': message
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('SMS sent successfully:', data);
+                alert('SMS sent successfully!');
+            })
+            .catch(error => {
+                console.error('Error sending SMS:', error);
+                alert('Error sending SMS. Please try again.');
+            });
+        }
+    </script>
+</body>
+</html>
